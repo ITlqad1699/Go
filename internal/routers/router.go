@@ -1,44 +1,23 @@
 package routers
 
 import (
-	"fmt"
-
 	c "github.com/anonydev/e-commerce-api/internal/controller"
 	"github.com/anonydev/e-commerce-api/internal/middleware"
 	"github.com/gin-gonic/gin"
 )
 
-func AA() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		fmt.Println("Before -> AA")
-		c.Next()
-		fmt.Println("After -> AA")
-	}
-}
-
-func BB() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		fmt.Println("Before -> BB")
-		c.Next()
-		fmt.Println("After -> BB")
-	}
-}
-
-func CC(c *gin.Context) {
-	fmt.Println("Before -> CC")
-	c.Next()
-	fmt.Println("After -> CC")
-}
-
 func NewRouter() *gin.Engine {
 	r := gin.Default()
 	r.Use(middleware.AuthMiddleware())
 
+	// Create new instance of user controller
+	newUserControler := c.NewUserController()
+
 	// /v1/2025
 	v1 := r.Group("/v1/2025")
 	{
-
-		v1.GET("/user/1", c.NewUserController().GetUserByID)
+		// Invoke method GetUserByID from user controller
+		v1.GET("/user/1", newUserControler.GetUserByID)
 		v1.GET("/ping", c.NewPongController().Pong)
 	}
 
@@ -55,6 +34,7 @@ func NewRouter() *gin.Engine {
 	}
 	return r
 }
+
 func temp_api(c *gin.Context) {
 	c.JSON(200, gin.H{
 		"message": "temp api",
