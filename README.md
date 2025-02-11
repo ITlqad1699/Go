@@ -373,3 +373,149 @@ start chrome <absolute path file>
 start microsoft-edge:<absolute path file>
 start firefox <absolute path file>
 ```
+
+### 9 Project Standardization:
+#### 9.1 Command and Makefile:
+- Command:
+```shell
+// Install make by chocolate:
+choco install make
+// Go run server
+go run cmd/server/main.go
+```
+- Test curl:
+```shell
+curl http://localhost:8002/v1/...
+```
+- Create Makefile:
+```shell
+# Execution content  can be extended 
+# SERVER
+SERVER = server
+
+run: 
+	go run .\cmd\${SERVER}\main.go
+```
+#### 9.2 Implement Initialize:
+- Boot the application and init all config, logger, sql, redis connection,...
+- The file: .\cmd\server\main.go has only one purpose: run the application.
+
+**pkg\setting\section.go**
+- Defines Configuration struct
+```go
+package setting
+
+type Config struct {
+	Server struct {
+		Port int `mapstructure:"port"`
+	} `mapstructure:"server"`
+	MySQL  MySQLSetting  `mapstructure:"mysql"`
+	Logger LoggerSetting `mapstructure:"log"`
+}
+
+type MySQLSetting struct {
+	Host            string `mapstructure:"host"`
+	Port            int    `mapstructure:"port"`
+	Username        string `mapstructure:"username"`
+	Password        string `mapstructure:"password"`
+	DBName          string `mapstructure:"dbname"`
+	MaxIdleConns    int    `mapstructure:"max_idle_conns"`
+	MaxOpenConns    int    `mapstructure:"max_open_conns"`
+	ConnMaxLifetime int    `mapstructure:"conn_max_lifetime"`
+}
+
+type LoggerSetting struct {
+	Log_level     string `mapstructure:"log_level"`
+	Log_file_name string `mapstructure:"log_file_name"`
+	Max_backups   int    `mapstructure:"max_backups"`
+	Max_size      int    `mapstructure:"max_size"`
+	Max_age       int    `mapstructure:"max_age"`
+	Compress      bool   `mapstructure:"compress"`
+}
+
+
+```
+**pkg\logger\logger.go**
+- Defines Logger config
+```go
+package logger
+
+import (...)
+
+type LoggerZap struct {
+	*zap.Logger
+}
+
+func NewLogger(config setting.LoggerSetting) *LoggerZap {
+	// debug -> info -> warn -> error -> dpanic -> panic -> fatal
+	logLevel := config.Log_level
+	var level zapcore.Level
+	switch logLevel {
+	case "debug":
+		level = zap.DebugLevel
+	case "info":
+		level = zap.ErrorLevel
+	case "warn":
+		level = zap.WarnLevel
+	case "error":
+		level = zap.InfoLevel
+	default:
+		level = zap.InfoLevel
+	}
+	fmt.Println("start")
+	encoder := getEncoderLog()
+	hook := lumberjack.Logger{
+		Filename:   config.Log_file_name,
+		MaxSize:    config.Max_size, // megabytes
+		MaxBackups: config.Max_backups,
+		MaxAge:     config.Max_age,  //days
+		Compress:   config.Compress, // disabled by default
+	}
+	fmt.Println("end")
+	core := zapcore.NewCore(
+		encoder,
+		zapcore.NewMultiWriteSyncer(zapcore.AddSync(os.Stdout), zapcore.AddSync(&hook)),
+		level,
+	)
+
+	return &LoggerZap{zap.New(core, zap.AddCaller(), zap.AddStacktrace(zap.ErrorLevel))}
+}
+
+// Format logger
+func getEncoderLog() zapcore.Encoder {
+	// 1736170682.0589921 -> 2025-01-06T20:38:02.058+0700
+	encodeConfiger := zap.NewProductionEncoderConfig()
+	encodeConfiger.EncodeTime = zapcore.ISO8601TimeEncoder
+	// ts -> time
+	encodeConfiger.TimeKey = "time"
+	// lvl -> level
+	encodeConfiger.EncodeLevel = zapcore.CapitalLevelEncoder
+	//"caller": "main.log.go:line-number"
+	encodeConfiger.EncodeCaller = zapcore.ShortCallerEncoder
+	return zapcore.NewJSONEncoder(encodeConfiger)
+}
+
+```
+**global\Config.go**
+- Defines gobal variable used for the entire application  
+```go
+package global
+
+import (
+	"github.com/anonydev/e-commerce-api/pkg/logger"
+	"github.com/anonydev/e-commerce-api/pkg/setting"
+)
+
+var (
+	Config setting.Config
+	Logger *logger.LoggerZap
+)
+``` 
+
+#### 9.3 Gorm setting:
+- Installition:
+```shell
+go get -u gorm.io/gorm
+go get github.com/google/uuid
+```
+- Repo: [gorm docs](https://gorm.io/docs/)

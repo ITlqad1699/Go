@@ -1,0 +1,11 @@
+{"level":"INFO","time":"2025-01-16T23:25:06.323+0700","caller":"initialize/run.go:11","msg":"Configuration loaded successfully","success":"ok"}
+{"level":"INFO","time":"2025-01-17T12:56:11.492+0700","caller":"initialize/run.go:11","msg":"Configuration loaded successfully","success":"ok"}
+{"level":"INFO","time":"2025-01-17T12:56:11.500+0700","caller":"initialize/mysql.go:25","msg":"Successfully connected to MySQL database"}
+{"level":"INFO","time":"2025-01-17T13:01:55.188+0700","caller":"initialize/run.go:11","msg":"Configuration loaded successfully","success":"ok"}
+{"level":"INFO","time":"2025-01-17T13:01:55.206+0700","caller":"initialize/mysql.go:25","msg":"Successfully connected to MySQL database"}
+{"level":"INFO","time":"2025-01-17T13:04:49.266+0700","caller":"initialize/run.go:11","msg":"Configuration loaded successfully","success":"ok"}
+{"level":"INFO","time":"2025-01-17T13:04:49.282+0700","caller":"initialize/mysql.go:26","msg":"Successfully connected to MySQL database"}
+{"level":"INFO","time":"2025-01-17T13:05:35.610+0700","caller":"initialize/run.go:11","msg":"Configuration loaded successfully","success":"ok"}
+{"level":"INFO","time":"2025-01-17T13:05:35.636+0700","caller":"initialize/mysql.go:26","msg":"Successfully connected to MySQL database"}
+{"level":"INFO","time":"2025-01-17T13:07:02.110+0700","caller":"initialize/run.go:11","msg":"Configuration loaded successfully","success":"ok"}
+{"level":"INFO","time":"2025-01-17T13:07:02.127+0700","caller":"initialize/mysql.go:26","msg":"Successfully connected to MySQL database"}
